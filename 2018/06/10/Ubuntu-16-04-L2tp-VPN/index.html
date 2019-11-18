@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="alternate" href="/atom.xml" title="VoidSing" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.5.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="Background家里电脑升级到Ubuntu 16.04.4了，但是公司办公平时要用VPN，结果16.04添加网络时，不支持使用L2TP，那怎么行。    必须要自己搞起了，以前使用14.04时，直接是用apt-get install的，16.04结果使用apt-get install老是不能正常work。网络找了一圈，各种贴子都试了，还是搞不定。最后没办法了，只有自己编译安装了，结果才知道是有">
+<meta name="keywords" content="Ubuntu VPN">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Ubuntu 配置 L2TP VPN">
+<meta property="og:url" content="https:&#x2F;&#x2F;voidsing.github.io&#x2F;2018&#x2F;06&#x2F;10&#x2F;Ubuntu-16-04-L2tp-VPN&#x2F;index.html">
+<meta property="og:site_name" content="VoidSing">
+<meta property="og:description" content="Background家里电脑升级到Ubuntu 16.04.4了，但是公司办公平时要用VPN，结果16.04添加网络时，不支持使用L2TP，那怎么行。    必须要自己搞起了，以前使用14.04时，直接是用apt-get install的，16.04结果使用apt-get install老是不能正常work。网络找了一圈，各种贴子都试了，还是搞不定。最后没办法了，只有自己编译安装了，结果才知道是有">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https:&#x2F;&#x2F;voidsing.github.io&#x2F;2018&#x2F;06&#x2F;10&#x2F;Ubuntu-16-04-L2tp-VPN&#x2F;vpn_add_vpn.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;voidsing.github.io&#x2F;2018&#x2F;06&#x2F;10&#x2F;Ubuntu-16-04-L2tp-VPN&#x2F;vpn_user_info.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;voidsing.github.io&#x2F;2018&#x2F;06&#x2F;10&#x2F;Ubuntu-16-04-L2tp-VPN&#x2F;vpn_login.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;voidsing.github.io&#x2F;2018&#x2F;06&#x2F;10&#x2F;Ubuntu-16-04-L2tp-VPN&#x2F;vpn_login_input.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;voidsing.github.io&#x2F;2018&#x2F;06&#x2F;10&#x2F;Ubuntu-16-04-L2tp-VPN&#x2F;vpn_login_ok.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;voidsing.github.io&#x2F;2018&#x2F;06&#x2F;10&#x2F;Ubuntu-16-04-L2tp-VPN&#x2F;vpn_remote_desktop.png">
+<meta property="og:updated_time" content="2019-11-18T05:12:57.379Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;voidsing.github.io&#x2F;2018&#x2F;06&#x2F;10&#x2F;Ubuntu-16-04-L2tp-VPN&#x2F;vpn_add_vpn.png">
+
+<link rel="canonical" href="https://voidsing.github.io/2018/06/10/Ubuntu-16-04-L2tp-VPN/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Ubuntu 配置 L2TP VPN | VoidSing</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">VoidSing</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>About</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="https://voidsing.github.io/2018/06/10/Ubuntu-16-04-L2tp-VPN/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="VoidSing">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="VoidSing">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Ubuntu 配置 L2TP VPN
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2018-06-10 22:50:13" itemprop="dateCreated datePublished" datetime="2018-06-10T22:50:13+08:00">2018-06-10</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2019-11-18 13:12:57" itemprop="dateModified" datetime="2019-11-18T13:12:57+08:00">2019-11-18</time>
+              </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.7k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>2 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h2><p>家里电脑升级到<strong>Ubuntu 16.04.4</strong>了，但是公司办公平时要用VPN，结果16.04添加网络时，不支持使用L2TP，那怎么行。    必须要自己搞起了，以前使用14.04时，直接是用<code>apt-get install</code>的，16.04结果使用<code>apt-get install</code>老是不能正常work。网络找了一圈，各种贴子都试了，还是搞不定。最后没办法了，只有自己编译安装了，结果才知道是有一些坑的，记于此。</p>
+<h2 id="Building"><a href="#Building" class="headerlink" title="Building"></a>Building</h2><p>这个没有什么巧，直接照着官网<strong>building <a href="https://github.com/nm-l2tp/network-manager-l2tp" target="_blank" rel="noopener">network-manager-l2tp</a></strong>。官网每一步都写的很清晰，命令直接copy过来执行即可，没什么难的，赞官方哈！</p>
+<h2 id="Configuration"><a href="#Configuration" class="headerlink" title="Configuration"></a>Configuration</h2><p>Building成功安装之后，至此，你添加网络时，已经可以选L2TP了，如下图<br><img src="vpn_add_vpn.png" alt="add vpn"></p>
+<p>接下来，就是正常的配置了，vpn配置里面添加用户名、密码哇什么的。但是就是连不回公司哇，气人得很，试了很多方法。也知道大概是错在哪个位置的，打开debug模式，看log是说vpn加密算法不对路。关键就是这一步难住了，所以才想写这篇blog记录一下的。</p>
+<h2 id="Doc"><a href="#Doc" class="headerlink" title="Doc"></a>Doc</h2><p>再找找官方文档<strong><a href="https://github.com/nm-l2tp/NetworkManager-l2tp/wiki/Known-Issues" target="_blank" rel="noopener">Known Issues</a></strong>写的很清楚了，里面有个<code>ike-scan</code>工具，可以帮助测试加密算法。才想起来，公司的这套vpn好几年前的，最早的时候是硬件的key，登录都是走windows系统的。越来越清晰了，问题就出在这里。</p>
+<p>然后找到新建vpn配置<code>/etc/NetworkManager/system-connections/hello</code>，里面新加</p>
+<blockquote>
+<p> ipsec-ike=<code>3des-sha1-modp1024</code><br> ipsec-esp=<code>3des-sha1</code></p>
+</blockquote>
+<p>能成功，但是重启后又不行了，奇怪，再查看配置，又被覆盖了，原来是需要在界面里面配置好。这样每次登录后，才不会被覆盖掉，如图<br><img src="vpn_user_info.png" alt="VPN配置"><br>这里有两点注意的地方：</p>
+<ul>
+<li>勾选<code>Enable IPsec tunnel L2TP host</code></li>
+<li>点开Advanced，把上面的两行配置塞进去</li>
+</ul>
+<h2 id="Done"><a href="#Done" class="headerlink" title="Done"></a>Done</h2><p>至此，基本大功告成了：</p>
+<ul>
+<li>点击网络小图标，选择<code>VPN Connections</code></li>
+<li>输入VPN密码即可（支持硬件动态密码）</li>
+</ul>
+<p>恭喜你应该可以登录成功了，如下面这样的界面：）<br><img src="vpn_login.png" alt="选择vpn"><br><img src="vpn_login_input.png" alt="vpn密码"><br><img src="vpn_login_ok.png" alt="登录成功"></p>
+<p>接着，配置<code>Remmina Remote Desktop Client</code>，就可以登录回公司的Windows电脑啦<del>~</del><br><img src="vpn_remote_desktop.png" alt="登录Windows"></p>
+<h2 id="Note"><a href="#Note" class="headerlink" title="Note"></a>Note</h2><ol>
+<li>新建VPN只需要第一次弄一下，后面每次只需要点vpn用密码登录。</li>
+<li>在Windows里面连VPN的，记得当时需要填端口，这里好像不需要。</li>
+<li>apt安装的命令如下：<blockquote>
+<p><code>sudo add-apt-repository ppa:nm-l2tp/network-manager-l2tp</code><br><code>sudo apt-get update</code><br>​<code>sudo apt-get install network-manager-l2tp network-manager-l2tp-gnome</code></p>
+</blockquote>
+</li>
+<li>如果安装完l2tp，新建vpn还是找不到l2tp的话，那就试试这个<ul>
+<li><code>sudo systemctl restart NetworkManager</code></li>
+<li><code>sudo service network-manager restart</code></li>
+<li>reboot重启咯</li>
+</ul>
+</li>
+<li>Ubuntu 18.04的话，听说系统又带上了l2tp，那么最主要的就是注意填一下<blockquote>
+<p>Phase1 Algorithms : <code>3des-sha1-modp1024</code><br>Phase2 Algorithms : <code>3des-sha1</code></p>
+</blockquote>
+</li>
+<li>Ubuntu 14.04的话，记得当时输入vpn密码之后，有时候能连上，有时候不能，当时也是查了一堆资料，最后就是搞了一个脚本，连不上时，就 <code>sudo ./vpn.sh</code> 就好了。现在也记不得为什么了，仅供参考哈。 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># my vpn</span></span><br><span class="line"><span class="keyword">for</span> each <span class="keyword">in</span> /proc/sys/net/ipv4/conf/*</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">	<span class="built_in">echo</span> 0 &gt; <span class="variable">$each</span>/accept_redirects</span><br><span class="line">	<span class="built_in">echo</span> 0 &gt; <span class="variable">$each</span>/send_redirects</span><br><span class="line"><span class="keyword">done</span></span><br><span class="line">/etc/init.d/ipsec restart</span><br><span class="line">/etc/init.d/xl2tpd restart</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Ubuntu-VPN/" rel="tag"># Ubuntu VPN</a>
+          </div>
+
+        
+
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Background"><span class="nav-number">1.</span> <span class="nav-text">Background</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Building"><span class="nav-number">2.</span> <span class="nav-text">Building</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Configuration"><span class="nav-number">3.</span> <span class="nav-text">Configuration</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Doc"><span class="nav-number">4.</span> <span class="nav-text">Doc</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Done"><span class="nav-number">5.</span> <span class="nav-text">Done</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Note"><span class="nav-number">6.</span> <span class="nav-text">Note</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">VoidSing</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">1</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">VoidSing</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="Symbols count total">2k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">2 mins.</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.0.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.5.0
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
